@@ -1,0 +1,52 @@
+# -*- coding: mbcs -*-
+from part import *
+from material import *
+from section import *
+from assembly import *
+from step import *
+from interaction import *
+from load import *
+from mesh import *
+from optimization import *
+from job import *
+from sketch import *
+from visualization import *
+from connectorBehavior import *
+mdb.openStep('D:/Codex/Explicit_TPMS/pcell/P_1x1x1.step', scaleFromFile=OFF)
+mdb.models['Model-1'].PartFromGeometryFile(combine=True, dimensionality=THREE_D
+    , geometryFile=mdb.acis, mergeSolidRegions=True, name='P_1x1x1', type=
+    DEFORMABLE_BODY)
+mdb.models['Model-1'].Material(name='Material-1')
+mdb.models['Model-1'].materials['Material-1'].Density(table=((7.85e-09, ), ))
+mdb.models['Model-1'].materials['Material-1'].Elastic(table=((200000.0, 0.3), 
+    ))
+mdb.models['Model-1'].HomogeneousSolidSection(material='Material-1', name=
+    'Section-1', thickness=None)
+mdb.models['Model-1'].parts['P_1x1x1'].SectionAssignment(offset=0.0, 
+    offsetField='', offsetType=MIDDLE_SURFACE, region=Region(
+    cells=mdb.models['Model-1'].parts['P_1x1x1'].cells.getSequenceFromMask(
+    mask=('[#1 ]', ), )), sectionName='Section-1', thicknessAssignment=
+    FROM_SECTION)
+mdb.models['Model-1'].rootAssembly.DatumCsysByDefault(CARTESIAN)
+mdb.models['Model-1'].rootAssembly.Instance(dependent=ON, name='P_1x1x1-1', 
+    part=mdb.models['Model-1'].parts['P_1x1x1'])
+mdb.models['Model-1'].StaticStep(name='Step-1', previous='Initial')
+mdb.models['Model-1'].parts['P_1x1x1'].seedPart(deviationFactor=0.1, 
+    minSizeFactor=0.1, size=0.29)
+mdb.models['Model-1'].parts['P_1x1x1'].seedPart(deviationFactor=0.1, 
+    minSizeFactor=0.1, size=0.2)
+mdb.models['Model-1'].rootAssembly.regenerate()
+mdb.models['Model-1'].parts['P_1x1x1'].setMeshControls(elemShape=HEX_DOMINATED, 
+    regions=mdb.models['Model-1'].parts['P_1x1x1'].cells.getSequenceFromMask((
+    '[#1 ]', ), ), technique=BOTTOM_UP)
+mdb.meshEditOptions.setValues(enableUndo=True, maxUndoCacheElements=0.5)
+mdb.models['Model-1'].parts['P_1x1x1'].setMeshControls(elemShape=TET, regions=
+    mdb.models['Model-1'].parts['P_1x1x1'].cells.getSequenceFromMask(('[#1 ]', 
+    ), ), technique=FREE)
+mdb.models['Model-1'].parts['P_1x1x1'].setElementType(elemTypes=(ElemType(
+    elemCode=C3D20R, elemLibrary=STANDARD), ElemType(elemCode=C3D15, 
+    elemLibrary=STANDARD), ElemType(elemCode=C3D10, elemLibrary=STANDARD)), 
+    regions=(mdb.models['Model-1'].parts['P_1x1x1'].cells.getSequenceFromMask((
+    '[#1 ]', ), ), ))
+mdb.models['Model-1'].parts['P_1x1x1'].generateMesh()
+# Save by Jiayi Li on 2026_06_06-09.42.07; build 2023 2022_09_29-02.11.55 183150

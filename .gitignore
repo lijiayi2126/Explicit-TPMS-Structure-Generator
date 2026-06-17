@@ -1,0 +1,29 @@
+# Python cache/build output
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+build/
+dist/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE/editor files
+.idea/
+.vscode/
+
+# Runtime/exported CAD artifacts
+Export/
+exports/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
