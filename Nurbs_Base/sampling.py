@@ -1,7 +1,8 @@
 # Nurbs_Base/sampling.py
 """
-基于 geomdl Volume 对象的等参曲面采样工具。
-依赖 volume.py 提供的 build_volume，不直接操作 geomdl 内部细节。
+Sampling helpers for geomdl Volume objects.
+This module depends on build_volume() and avoids direct access to geomdl
+internal state.
 """
 
 import numpy as np
@@ -13,26 +14,26 @@ def sample_iso_surface(vol: geomdl_BSpline.Volume,
                        fixed_val: float,
                        n_samples: int = 30) -> np.ndarray:
     """
-    在某个参数方向固定值处，提取等参曲面的采样点网格。
+    Sample an iso-parametric surface from a volume.
 
     Parameters
     ----------
     vol : geomdl_BSpline.Volume
-        由 build_volume() 构造的 Volume 对象。
+        Volume object created by build_volume().
     fixed_axis : str
-        固定的参数方向，'u' | 'v' | 'w'。
+        'u' | 'v' | 'w'
     fixed_val : float
-        固定参数值，范围 [0, 1]。
+        Fixed parameter value in [0, 1].
     n_samples : int
-        另外两个方向各自的采样数量，输出网格为 (n_samples, n_samples, 3)。
+        Number of samples in each free direction.
 
     Returns
     -------
     np.ndarray, shape (n_samples, n_samples, 3)
-        等参曲面上的采样点坐标。
+        Sampled point grid on the iso-parametric surface.
     """
     if fixed_axis not in ('u', 'v', 'w'):
-        raise ValueError(f"fixed_axis 必须是 'u'、'v' 或 'w'，收到: '{fixed_axis}'")
+        raise ValueError(f"fixed_axis must be 'u', 'v', or 'w'; got '{fixed_axis}'")
 
     fixed_val = float(np.clip(fixed_val, 0.0, 1.0))
     t = np.linspace(0.0, 1.0, n_samples)
@@ -55,7 +56,7 @@ def sample_iso_surface(vol: geomdl_BSpline.Volume,
 def sample_volume(vol: geomdl_BSpline.Volume,
                   n_samples: int = 10) -> np.ndarray:
     """
-    在三个参数方向均匀采样，生成体内部点云。
+    Uniformly sample points inside the volume.
 
     Returns
     -------

@@ -20,7 +20,7 @@ dependencies = [
 explicit-tpms = "main_ui:main"
 
 [tool.setuptools]
-py-modules = ["main_ui", "debug_crash", "tuidao"]
+py-modules = ["main_ui"]
 packages = ["Lattice_lib", "Nurbs_Base"]
 
 [tool.setuptools.package-data]

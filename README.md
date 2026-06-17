@@ -16,15 +16,13 @@ The GUI entry point is `main_ui.py`.
 
 ```text
 .
-├── main_ui.py                  # Main GUI application
-├── Lattice_lib/                # TPMS geometry implementations
-│   └── precomputation/         # Required precomputed surface data
-├── Nurbs_Base/                 # NURBS and B-spline helpers
-├── model/                      # Small example input models
-├── Scripts/                    # Development/test scripts
-├── pcell/                      # Example unit-cell CAD assets
-├── requirements.txt            # Runtime dependencies
-└── pyproject.toml              # Python project metadata
+main_ui.py                  # Main GUI application
+Lattice_lib/                # TPMS geometry implementations
+  precomputation/           # Required precomputed surface data
+Nurbs_Base/                 # NURBS and B-spline helpers
+model/                      # Small example input models
+requirements.txt            # Runtime dependencies
+pyproject.toml              # Python project metadata
 ```
 
 ## Installation

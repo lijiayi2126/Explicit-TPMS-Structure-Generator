@@ -1,18 +1,18 @@
 import numpy as np
 import cadquery as cq
 from Lattice_lib.TPMS_base import TPMSBase
-from Nurbs_Base.bspline_func import make_location_from_matrix   # 从基类文件导出
+from Nurbs_Base.bspline_func import make_location_from_matrix
 
 
 class Gyroid(TPMSBase):
 
-    # ── eta2 = 1（单胞归一化边长）────────────────────
+    # Normalized unit-cell edge length.
     _eta = 1.0
 
-    # ── TA：6 个旋转矩阵 ─────────────────────────────
+    # Six rotation matrices.
     @staticmethod
     def _build_TA(e):
-        TA = [None] * 7          # 下标从 1 开始，TA[0] 不用
+        TA = [None] * 7          # One-based indexing; TA[0] is unused.
         TA[1] = np.array([[1, 0, 0, 0],
                           [0, 1, 0, 0],
                           [0, 0, 1, 0],
@@ -39,10 +39,10 @@ class Gyroid(TPMSBase):
                           [0, 0, 0, 1]], dtype=float)
         return TA
 
-    # ── TB：8 个平移/反射矩阵 ─────────────────────────
+    # Eight translation/reflection matrices.
     @staticmethod
     def _build_TB(e):
-        TB = [None] * 9          # 下标从 1 开始
+        TB = [None] * 9          # One-based indexing; index 0 is unused.
         TB[1] = np.array([[1, 0, 0, 0],
                           [0, 1, 0, 0],
                           [0, 0, 1, 0],
@@ -77,7 +77,7 @@ class Gyroid(TPMSBase):
                           [0, 0, 0, 1]], dtype=float)
         return TB
 
-    # ── 按 MATLAB 循环生成全部 24 个变换矩阵 ──────────
+    # Build all 24 transform matrices following the MATLAB reference order.
     @classmethod
     def _build_all_T(cls):
         e  = cls._eta
@@ -97,9 +97,9 @@ class Gyroid(TPMSBase):
             for i in [1, 3, 5]:
                 T.append(TB[j] @ TA[i])          # k = 19~24
 
-        return T                                  # 长度 = 24
+        return T                                  # length = 24
 
-    # ── TPMSBase 必须实现的接口 ───────────────────────
+    # TPMSBase implementation
 
     @property
     def d_values(self):
@@ -117,7 +117,7 @@ class Gyroid(TPMSBase):
     def cell_period(self):
         return 2.0
 
-    # ── 核心：make_cell ───────────────────────────────
+    # Assemble one complete unit cell.
     def make_cell(self, w: float, location=None) -> cq.Compound:
         fp_1 = self.make_FP(w)
         fp_2 = self.make_FP_2(1 - w)
@@ -137,7 +137,7 @@ class Gyroid(TPMSBase):
         return result
 
 
-# ── 向后兼容入口 ──────────────────────────────────────
+# Backward-compatible function entry points.
 
 def gyroid_Shell(unit_cell_size, w, Nx, Ny, Nz, export_type=None):
     return Gyroid().make_shell(unit_cell_size, w, Nx, Ny, Nz, export_type)

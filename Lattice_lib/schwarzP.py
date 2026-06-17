@@ -17,7 +17,7 @@ class SchwarzP(TPMSBase):
     def make_cell(self, w: float, location=None) -> cq.Compound:
         fp = self.make_FP(w)
 
-        # ── Step 1：6 个面片 → Senior Patch ──────────
+        # Step 1: 6 face patches -> one senior patch.
         FP_0 = fp
         FP_1 = fp.mirror((0,  1, -1), (0, 0, 0))
         FP_2 = FP_1.mirror((1,  0, -1), (0, 0, 0))
@@ -27,7 +27,7 @@ class SchwarzP(TPMSBase):
 
         SP_0 = cq.Compound.makeCompound([FP_0, FP_1, FP_2, FP_3, FP_4, FP_5])
 
-        # ── Step 2：8 个 Senior Patch → 完整单胞 ──────
+        # Step 2: 8 senior patches -> one full unit cell.
         SP_1 = SP_0.mirror((0, 0, 1), (0, 0, 0))
         SP_2 = SP_1.mirror((0, 1, 0), (0, 0, 0))
         SP_3 = SP_2.mirror((0, 0, 1), (0, 0, 0))
@@ -46,7 +46,7 @@ class SchwarzP(TPMSBase):
 
 
 # =========================================================
-#  向后兼容入口（main.py 无需修改）
+# Backward-compatible function entry points.
 # =========================================================
 
 def schwarzP_Shell(

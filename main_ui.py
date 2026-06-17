@@ -63,12 +63,10 @@ MODEL_FILTERS = (
     "All Files (*.*)"
 )
 
-# ══════════════════════════════════════════════════════════
 #  Offset mapping:  w = param_w(d) = 2.5*d + 0.5
 #  Solid:  d_bot = -t/2,  d_top = t/2
 #          w_bot = 2.5*(-t/2) + 0.5 = -1.25*t + 0.5
 #          w_top = 2.5*( t/2) + 0.5 =  1.25*t + 0.5
-# ══════════════════════════════════════════════════════════
 def d_to_w(d: float) -> float:
     """Physical offset w from normalised offset d."""
     return 2.5 * d + 0.5
@@ -80,10 +78,8 @@ def t_to_w_top(t: float) -> float:
     return d_to_w( t / 2)          # =  1.25*t + 0.5
 
 
-# ══════════════════════════════════════════════════════════
 #  Density <-> t conversion
-#  Fitting: rho = a * t^b  →  t = (rho/a)^(1/b)
-# ══════════════════════════════════════════════════════════
+#  Fitting: rho = a * t^b    t = (rho/a)^(1/b)
 DENSITY_PARAMS = {
     "SchwarzP": {"a": 1.022,  "b": 1.092},
     "IWP":      {"a": 0.8070, "b": 1.221},
@@ -187,9 +183,7 @@ def slider_to_rho(family: str, v: int) -> float:
     return lo + v / SLIDER_STEPS * (hi - lo)
 
 
-# ══════════════════════════════════════════════════════════
 #  Custom ComboBox: selected item in blue
-# ══════════════════════════════════════════════════════════
 class BlueSelectedComboBox(QComboBox):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -229,9 +223,7 @@ class _BlueSelectedDelegate(QStyledItemDelegate):
             option.font = f
 
 
-# ══════════════════════════════════════════════════════════
 #  Slider with min/max labels on both sides
-# ══════════════════════════════════════════════════════════
 def _make_slider_row(color: str, lbl_min: str, lbl_max: str):
     """Returns (container_widget, QSlider)."""
     container = QWidget()
@@ -275,9 +267,7 @@ def _make_slider_row(color: str, lbl_min: str, lbl_max: str):
     return container, slider
 
 
-# ══════════════════════════════════════════════════════════
 #  OCCT Viewport
-# ══════════════════════════════════════════════════════════
 class OCCTWidget(QWidget):
 
     def __init__(self, parent=None):
@@ -421,9 +411,7 @@ class OCCTWidget(QWidget):
             traceback.print_exc()
 
 
-# ══════════════════════════════════════════════════════════
 #  Background thread: lattice generation
-# ══════════════════════════════════════════════════════════
 class GenerateThread(QThread):
     finished = pyqtSignal(float)
     error    = pyqtSignal(str)
@@ -485,9 +473,7 @@ class GenerateThread(QThread):
             raise ValueError(f"Unknown lattice type: {t}")
 
 
-# ══════════════════════════════════════════════════════════
 #  Main Window
-# ══════════════════════════════════════════════════════════
 class MainWindow(QMainWindow):
 
     def __init__(self):
@@ -506,7 +492,7 @@ class MainWindow(QMainWindow):
         self._w_top = t_to_w_top(0.20)
         self._build_ui()
 
-    # ── Helpers ───────────────────────────────────────────
+    #  Helpers 
     def _row(self, label_text: str, widget, label_width: int = 130):
         w = QWidget()
         h = QHBoxLayout(w)
@@ -560,7 +546,7 @@ class MainWindow(QMainWindow):
 
     def _param_row(self, label: str, edit: QLineEdit,
                    slider_row_widget: QWidget) -> QWidget:
-        """Stacked: [label + edit]  /  [min──slider──max]"""
+        """Stacked: [label + edit]  /  [minslidermax]"""
         container = QWidget()
         v = QVBoxLayout(container)
         v.setContentsMargins(0, 0, 0, 0)
@@ -579,12 +565,12 @@ class MainWindow(QMainWindow):
         v.addWidget(slider_row_widget)
         return container
 
-    # ── Build UI ──────────────────────────────────────────
+    #  Build UI 
     def _build_ui(self):
 
         menubar = self.menuBar()
         menu_file = menubar.addMenu("File")
-        act_exp = QAction("Export…", self)
+        act_exp = QAction("Export", self)
         act_exp.triggered.connect(self._on_export)
         menu_file.addAction(act_exp)
 
@@ -602,8 +588,8 @@ class MainWindow(QMainWindow):
         pv.setSpacing(8)
         pv.setAlignment(Qt.AlignTop)
 
-        # ── ① Lattice type ────────────────────────────────
-        g_type = self._group_box("🔷  Lattice type")
+        #   Lattice type 
+        g_type = self._group_box("Lattice type")
         self.combo_subtype = BlueSelectedComboBox()
         self.combo_subtype.addItems(TPMS_TYPES)
         self.combo_subtype.currentTextChanged.connect(self._on_type_changed)
@@ -611,8 +597,8 @@ class MainWindow(QMainWindow):
         g_type.layout().addWidget(self.combo_subtype)
         pv.addWidget(g_type)
 
-        # ── ② Array parameters ────────────────────────────
-        g_array = self._group_box("📐  Array parameters")
+        #   Array parameters 
+        g_array = self._group_box("Array parameters")
         self.e_cell = self._line_edit("10")
         self.e_nx   = self._line_edit("1")
         self.e_ny   = self._line_edit("1")
@@ -650,10 +636,10 @@ class MainWindow(QMainWindow):
         g_bool.layout().addWidget(self.lbl_fill_counts)
         pv.addWidget(g_bool)
 
-        # ── ③ Design parameters ───────────────────────────
-        self.g_design = self._group_box("🎛  Design parameters")
+        #   Design parameters 
+        self.g_design = self._group_box("Design parameters")
 
-        # —— Shell ——
+        #  Shell 
         self.w_shell = QWidget()
         vs = QVBoxLayout(self.w_shell)
         vs.setContentsMargins(0, 0, 0, 0)
@@ -662,13 +648,13 @@ class MainWindow(QMainWindow):
         vs.addWidget(self._row("Offset value:", self.e_t))
         self.g_design.layout().addWidget(self.w_shell)
 
-        # —— Solid ——
+        #  Solid 
         self.w_solid = QWidget()
         vso = QVBoxLayout(self.w_solid)
         vso.setContentsMargins(0, 0, 0, 0)
         vso.setSpacing(6)
 
-        # · t ·
+        #  t 
         lbl_t_sec = QLabel("Thickness  t")
         lbl_t_sec.setStyleSheet(
             "color:#1565C0; font-size:11px; font-weight:bold; margin-top:2px;"
@@ -685,8 +671,8 @@ class MainWindow(QMainWindow):
 
         vso.addWidget(self._divider())
 
-        # · ρ* ·
-        self.lbl_rho_sec = QLabel("Relative density  ρ*")
+        #  * 
+        self.lbl_rho_sec = QLabel("Relative density rho*")
         self.lbl_rho_sec.setStyleSheet(
             "color:#c07000; font-size:11px; font-weight:bold; margin-top:2px;"
         )
@@ -730,15 +716,15 @@ class MainWindow(QMainWindow):
         rho_h.addWidget(self.slider_rho, stretch=1)
         rho_h.addWidget(self._rho_lbl_max)
 
-        vso.addWidget(self._param_row("ρ* :", self.e_rho, rho_slider_row))
+        vso.addWidget(self._param_row("rho* :", self.e_rho, rho_slider_row))
 
         self.g_design.layout().addWidget(self.w_solid)
         pv.addWidget(self.g_design)
         pv.removeWidget(g_bool)
         pv.insertWidget(pv.indexOf(self.g_design) + 1, g_bool)
 
-        # ── ④ Buttons ─────────────────────────────────────
-        self.btn_gen = QPushButton("▶  Generate")
+        #   Buttons 
+        self.btn_gen = QPushButton("Generate")
         self.btn_gen.setFixedHeight(40)
         self.btn_gen.setStyleSheet("""
             QPushButton {
@@ -750,7 +736,7 @@ class MainWindow(QMainWindow):
         """)
         self.btn_gen.clicked.connect(self._on_generate)
 
-        self.btn_exp = QPushButton("💾  Export")
+        self.btn_exp = QPushButton("Export")
         self.btn_exp.setFixedHeight(40)
         self.btn_exp.setEnabled(False)
         self.btn_exp.setStyleSheet("""
@@ -782,7 +768,7 @@ class MainWindow(QMainWindow):
         )
         self.setStatusBar(self.status)
         self.status.showMessage(
-            "Ready — Select the TPMS type and set the parameters, then click Generate"
+            "Ready. Select the TPMS type, set parameters, then click Generate."
         )
 
         # Connect signals
@@ -851,9 +837,7 @@ class MainWindow(QMainWindow):
             QMessageBox.critical(self, "Import failed", str(e))
             self.status.showMessage("Model import failed")
 
-    # ══════════════════════════════════════════════════════
-    #  Type combo → show/hide
-    # ══════════════════════════════════════════════════════
+    #  Type combo  show/hide
     def _on_type_changed(self, t: str):
         if not t:
             return
@@ -874,12 +858,10 @@ class MainWindow(QMainWindow):
         self._rho_lbl_min.setText(f"{lo:.3f}")
         self._rho_lbl_max.setText(f"{hi:.3f}")
 
-    # ══════════════════════════════════════════════════════
-    #  t <-> ρ* two-way sync
+    #  t <-> rho* two-way sync
     #  w = param_w(d) = 2.5*d + 0.5
-    #  d_bot = -t/2  →  w_bot = -1.25*t + 0.5
-    #  d_top =  t/2  →  w_top =  1.25*t + 0.5
-    # ══════════════════════════════════════════════════════
+    #  d_bot = -t/2    w_bot = -1.25*t + 0.5
+    #  d_top =  t/2    w_top =  1.25*t + 0.5
     def _sync_t_to_rho(self):
         if self._syncing:
             return
@@ -951,9 +933,7 @@ class MainWindow(QMainWindow):
     def _on_edit_rho(self):
         self._sync_rho_to_t()
 
-    # ══════════════════════════════════════════════════════
     #  Generate
-    # ══════════════════════════════════════════════════════
     def _current_params(self) -> dict:
         t = self.combo_subtype.currentText()
         is_solid = t.endswith("-Solid")
@@ -992,11 +972,11 @@ class MainWindow(QMainWindow):
         }
         self.btn_gen.setEnabled(False)
         self.btn_exp.setEnabled(False)
-        self.status.showMessage(f"⏳  Generating {t}, please wait…")
+        self.status.showMessage(f"Generating {t}, please wait...")
         self._thread = GenerateThread(params)
         self._thread.finished.connect(self._on_gen_done)
         self._thread.error.connect(self._on_gen_error)
-        self._last_params = dict(params)   # ← 新增
+        self._last_params = dict(params)   # Cache the generated parameter set.
         self._thread.start()
 
     def _on_gen_done(self, elapsed: float):
@@ -1004,16 +984,14 @@ class MainWindow(QMainWindow):
         self.canvas.display_shape(self._shape)
         self.btn_gen.setEnabled(True)
         self.btn_exp.setEnabled(True)
-        self.status.showMessage(f"✅  Done!  Elapsed: {elapsed:.8f} s")
+        self.status.showMessage(f"Done. Elapsed: {elapsed:.8f} s")
 
     def _on_gen_error(self, msg: str):
         self.btn_gen.setEnabled(True)
-        self.status.showMessage("❌  Generation failed")
+        self.status.showMessage("Generation failed")
         QMessageBox.critical(self, "Error", msg)
 
-    # ══════════════════════════════════════════════════════
     #  Export
-    # ══════════════════════════════════════════════════════
     def _on_export(self):
         from OCP.STEPControl import STEPControl_Writer, STEPControl_AsIs
         from OCP.IGESControl import IGESControl_Writer
@@ -1023,15 +1001,14 @@ class MainWindow(QMainWindow):
             QMessageBox.warning(self, "Notice", "Please generate the lattice structure first!")
             return
 
-        # ── 参数变更检测 ──────────────────────────────────
+        # Parameter-change guard.
         if self._last_params is not None and self._current_params() != self._last_params:
             QMessageBox.warning(
                 self, "Parameters Changed",
                 "The parameters have been modified since the last generation.\n"
-                "Please click  ▶ Generate  again before exporting."
+                "Please click Generate again before exporting."
             )
             return
-        # ─────────────────────────────────────────────────
 
         filters = "STEP Files (*.step);;IGES Files (*.igs);;STL Files (*.stl)"
         path, sel = QFileDialog.getSaveFileName(self, "Export", "lattice", filters)
@@ -1075,11 +1052,11 @@ class MainWindow(QMainWindow):
                 else:
                     self._shape.exportStl(path)
 
-            self.status.showMessage(f"✅  Exported to: {path}")
+            self.status.showMessage(f"Exported to: {path}")
 
         except Exception as e:
             QMessageBox.critical(self, "Export failed", str(e))
-            self.status.showMessage("❌  Export failed")
+            self.status.showMessage("Export failed")
 def main() -> int:
     app = QApplication(sys.argv)
     win = MainWindow()
