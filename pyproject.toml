@@ -21,7 +21,7 @@ explicit-tpms = "main_ui:main"
 
 [tool.setuptools]
 py-modules = ["main_ui"]
-packages = ["Lattice_lib", "Nurbs_Base"]
+packages = ["Lattice_lib", "Nurbs_Base", "ui"]
 
 [tool.setuptools.package-data]
 Lattice_lib = ["precomputation/*.mat"]
