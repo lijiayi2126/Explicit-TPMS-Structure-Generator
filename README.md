@@ -9,7 +9,7 @@ The GUI entry point is `main_ui.py`.
 - Generate Schwarz P, IWP, Gyroid, and Diamond TPMS structures.
 - Create shell and solid lattice variants.
 - Preview generated geometry in a PyQt/OpenCascade viewer.
-- Import CAD/mesh models for Boolean generation.
+- Import STEP or STL models for Boolean generation.
 - Export generated results as STEP, IGES, or STL.
 
 ## Project Layout
@@ -37,7 +37,8 @@ used by the GUI.
 load them when assembling face patches.
 
 `model` stores small STEP models that can be imported from the GUI for Boolean
-model clipping/filling tests.
+model clipping/filling tests. The import dialog supports STEP (`.step`, `.stp`)
+and STL (`.stl`) files. IGES is export-only in this application.
 
 `ui` contains the application interface code:
 

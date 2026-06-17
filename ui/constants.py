@@ -8,10 +8,8 @@ TPMS_TYPES = [
 ]
 
 MODEL_FILTERS = (
-    "CAD/Mesh Files (*.step *.stp *.iges *.igs *.brep *.brp *.stl);;"
+    "Supported Model Files (*.step *.stp *.stl);;"
     "STEP Files (*.step *.stp);;"
-    "IGES Files (*.iges *.igs);;"
-    "BREP Files (*.brep *.brp);;"
     "STL Files (*.stl);;"
     "All Files (*.*)"
 )
