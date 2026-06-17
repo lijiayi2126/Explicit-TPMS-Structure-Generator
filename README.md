@@ -74,6 +74,20 @@ python -m pip install -e .
 explicit-tpms
 ```
 
+## Model Clipping
+
+The `Enable model clipping` checkbox controls whether an imported model is used
+as the Boolean boundary for lattice generation.
+
+When it is disabled, the program generates a regular TPMS array from the manual
+unit-cell and X/Y/Z array settings. Imported models can still be inspected, but
+they do not affect the generated lattice.
+
+When it is enabled, the imported STEP/STL model is used as the clipping target.
+The program estimates how many TPMS unit cells are needed to cover the model
+bounding box, generates that lattice block, aligns it to the model, and keeps
+only the part of the lattice inside the imported model.
+
 ## Notes for GitHub
 
 Generated export files are intentionally ignored by `.gitignore` because STEP/STL/IGES outputs can be very large. Put generated output under `Export/` or `exports/`.
