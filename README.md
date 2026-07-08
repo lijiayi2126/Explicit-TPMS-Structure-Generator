@@ -1,95 +1,119 @@
-# Explicit TPMS
+# Explicit TPMS Structure Generator
 
-Explicit TPMS is a Python desktop application for generating TPMS lattice structures and exporting CAD/mesh files.
+A Windows desktop application for creating explicit TPMS lattice structures with a graphical user interface. 
 
-The GUI entry point is `main_ui.py`.
+The application uses PyQt5 for user interface and [CadQuery](https://github.com/CadQuery/cadquery) for parametric CAD modeling. CadQuery is built on the [Open CASCADE Technology](https://dev.opencascade.org/) geometry kernel. The graphical interface is implemented specifically for this project.
 
-## Features
+For information about CadQuery, refer to its [GitHub repository](https://github.com/CadQuery/cadquery) and [official documentation](https://cadquery.readthedocs.io/en/latest/).
 
-- Generate Schwarz P, IWP, Gyroid, and Diamond TPMS structures.
-- Create shell and solid lattice variants.
-- Preview generated geometry in a PyQt/OpenCascade viewer.
-- Import STEP or STL models for Boolean generation.
-- Export generated results as STEP, IGES, or STL.
+## 1. Installation
 
-## Project Layout
+The current release supports 64-bit Windows 10 and Windows 11.
+
+### 1.1 Requirements
+
+All installations require a graphics driver with OpenGL support. Installing from source additionally requires:
+
+- Python 3.12
+- Git
+
+The package versions listed in `requirements.txt` correspond to the tested software environment. Users are recommended to install the specified versions to ensure compatibility and reproducibility.
+
+The prebuild exe installer does not require manual dependency installation.
+
+### 1.2 Install from source
+
+Open **Command Prompt** in Windows and run:
+
+```cmd
+git clone https://github.com/lijiayi2126/Explicit-TPMS-Structure-Generator.git
+cd Explicit-TPMS-Structure-Generator
+python -m venv venv
+venv\Scripts\activate
+python -m pip install --upgrade pip
+pip install -e .
+python UI.py
+```
+
+`python -m venv venv` creates an isolated Python environment in the project folder. After activation, `pip install -e .` installs the application and the dependencies declared in `pyproject.toml`.
+
+When using PowerShell, activate the environment with:
+
+```powershell
+.\venv\Scripts\Activate.ps1
+```
+
+If PowerShell blocks script execution, use Command Prompt or allow locally created scripts for the current user:
+
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+```
+
+### 1.3 Install from EXE
+
+Users who do not need the source code can install the prebuilt Windows application directly:
 
 ```text
-.
-main_ui.py                  # Thin application entry point
-ui/                         # PyQt UI modules, viewport, generation thread, and UI helpers
-Lattice_lib/                # Four TPMS lattice implementations
-  precomputation/           # Precomputed TPMS surface data used by the generators
-Nurbs_Base/                 # NURBS and B-spline helper functions
-model/                      # STEP sample models for Boolean/model clipping workflows
-requirements.txt            # Runtime dependencies
-pyproject.toml              # Python project metadata
+Explicit-TPMS-Structure-Generator-Setup.exe
 ```
 
-## Code Organization
+Double-click the installer and follow the setup wizard. The installer includes Python, CadQuery, OpenCASCADE, PyQt5, and all other runtime dependencies, so no separate Python environment is required.
 
-`Lattice_lib` defines the four supported TPMS lattice families: Schwarz P, IWP,
-Gyroid, and Diamond. Each family exposes shell and solid generation functions
-used by the GUI.
+The installer creates a Start menu shortcut and can optionally create a desktop shortcut. To remove the application, run the uninstaller from the installation directory.
 
-`Lattice_lib/precomputation` contains the precomputed TPMS surface results. These
-`.mat` files are runtime data, not generated output, and the lattice generators
-load them when assembling face patches.
+### 1.4 Start a source installation later
 
-`model` stores small STEP models that can be imported from the GUI for Boolean
-model clipping/filling tests. The import dialog supports STEP (`.step`, `.stp`)
-and STL (`.stl`) files. IGES is export-only in this application.
+After opening a new Command Prompt, return to the project folder and reactivate the virtual environment:
 
-`ui` contains the application interface code:
-
-- `main_window.py`: main window workflow and signal handling.
-- `widgets.py`: reusable PyQt widgets and styling helpers.
-- `viewport.py`: OpenCascade viewer widget.
-- `generation.py`: background lattice generation thread.
-- `density.py`: thickness, offset, and relative-density conversions.
-- `geometry_io.py`: CAD/mesh model import and shape utilities.
-- `constants.py`: UI constants and file filters.
-
-## Installation
-
-Use Python 3.10 to 3.12. CadQuery and OCP wheels are sensitive to Python versions, so avoid Python 3.13 unless your environment has compatible wheels.
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
+```cmd
+cd Explicit-TPMS-Structure-Generator
+venv\Scripts\activate
+python UI.py
 ```
 
-## Run
 
-```powershell
-python main_ui.py
+
+## 2. Usage
+
+The definitions of the four lattice structure types (Schwarz P, I-WP, Gyroid, and Diamond) are provided in the `Lattice_lib` folder. After activating the installed virtual environment, run the main Python script as follows:
+
+```bash
+python UI.py
 ```
 
-After editable installation, the console script is also available:
+### 2.1 Lattice type
 
-```powershell
-python -m pip install -e .
-explicit-tpms
-```
+Click `Lattice Type`, the user can choose from the following topologies include:
 
-## Model Clipping
+* Shell
+  * Schwarz P
+  * Schoen I-WP
+  * Gyroid
+  * Diamond
+* Solid
+  * Schwarz P
+  * Schoen I-WP
+  * Gyroid
+  * Diamond
 
-The `Enable model clipping` checkbox controls whether an imported model is used
-as the Boolean boundary for lattice generation.
+### 2.2 Array parameters
 
-When it is disabled, the program generates a regular TPMS array from the manual
-unit-cell and X/Y/Z array settings. Imported models can still be inspected, but
-they do not affect the generated lattice.
+The user can enter the unit cell size in `Unit cell size`, the unit is mm. The user can also enter how many unit cells to generate in the X, Y and Z directions respectively.
 
-When it is enabled, the imported STEP/STL model is used as the clipping target.
-The program estimates how many TPMS unit cells are needed to cover the model
-bounding box, generates that lattice block, aligns it to the model, and keeps
-only the part of the lattice inside the imported model.
+### 2.3 Design parameters
 
-## Notes for GitHub
+For different types of TPMS cells, the program provides predefined one-to-one mappings between thickness $t$ and relative density $\rho$. Users can specify either the thickness parameter or the relative density, and the program will generate the corresponding lattice structure accordingly.
 
-Generated export files are intentionally ignored by `.gitignore` because STEP/STL/IGES outputs can be very large. Put generated output under `Export/` or `exports/`.
+### 2.4 Model Filling
 
-No license has been selected yet. Add a `LICENSE` file before publishing if you want other people to have clear reuse rights.
+This software supports the generation of lattice-filled geometric models based on Boolean operations. By clicking `Import Model`, users can import a geometric model from a specified location. The supported import and export formats include STEP, STL and IGES.
+
+Based on the dimensions of the imported geometric model, the software automatically calculates the number of unit cells required in the X, Y, and Z directions. Users can adjust the unit cell size to control the filling resolution and generate lattice structures with different levels of geometric detail.
+
+Several example models are provided in the `BooleanExamples` folder. The corresponding geometric models and porous structures are shown below:
+
+| ![Bunny model](BooleanExamples/pic/bunny_model.png) | ![Bunny porous structure](BooleanExamples/pic/bunny_porous.png) |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| ![Dente model](BooleanExamples/pic/dente_model.png) | ![Dente porous structure](BooleanExamples/pic/dente_porous.png) |
+| ![Duck model](BooleanExamples/pic/duck_model.png) | ![Duck porous structure](BooleanExamples/pic/duck_porous.png) |
+| ![Moai model](BooleanExamples/pic/moai_model.png) | ![Moai porous structure](BooleanExamples/pic/moai_porous.png) |

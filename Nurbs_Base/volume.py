@@ -1,8 +1,7 @@
 # Nurbs_Base/volume.py
 """
-Helper functions for constructing geomdl BSpline.Volume objects.
-Callers only need to provide control points and knot vectors; this module
-handles the required geomdl initialization order.
+封装 geomdl BSpline.Volume 的构造逻辑。
+调用方只需传入控制点和节点向量，无需关心 geomdl 的初始化顺序。
 """
 
 import numpy as np
@@ -16,25 +15,25 @@ def build_volume(ctrl_pts: np.ndarray,
                  knots_v=None,
                  knots_w=None) -> geomdl_BSpline.Volume:
     """
-    Build a geomdl BSpline.Volume object.
+    构造 geomdl BSpline.Volume 对象。
 
     Parameters
     ----------
     ctrl_pts : np.ndarray, shape (nu, nv, nw, 3)
-        Control point grid in (u, v, w) axis order.
+        控制点网格，轴序为 (u, v, w)。
     degree : int
-        Uniform B-spline degree for all three parameter directions.
+        三个方向统一的 B-spline 阶数。
     knots_u/v/w : list | None
-        Knot vectors. When omitted, clamped uniform knot vectors are generated.
+        节点向量。传 None 时自动生成均匀节点向量。
 
     Returns
     -------
     geomdl_BSpline.Volume
-        Initialized volume object ready for evaluate_single().
+        已完成初始化、可直接调用 evaluate_single() 的 Volume 对象。
     """
     nu, nv, nw, _ = ctrl_pts.shape
 
-    # Generate default knot vectors when none are provided.
+    # 未传入节点向量时自动生成
     if knots_u is None:
         knots_u = geomdl_kv.generate(degree, nu)
     if knots_v is None:
@@ -42,7 +41,7 @@ def build_volume(ctrl_pts: np.ndarray,
     if knots_w is None:
         knots_w = geomdl_kv.generate(degree, nw)
 
-    # geomdl expects assignments in this order.
+    # ── 严格按照 degree → cpsize → ctrlpts → knotvector 顺序赋值 ──
     vol = geomdl_BSpline.Volume()
     vol.degree_u     = degree
     vol.degree_v     = degree

@@ -14,7 +14,7 @@ from .bspline_func import (
 )
 from .volume   import build_volume
 from .sampling import sample_iso_surface, sample_volume
-from Lattice_lib.TPMS_base import TPMSBase 
+from Lattice_lib.TPMS_base import TPMSBase          # ← 新增
 
 __all__ = [
     "make_uniform_knots", "find_span", "basis_funs",

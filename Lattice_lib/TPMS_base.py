@@ -20,7 +20,7 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 
 
 # =========================================================
-# B-spline basis functions
+#  B-spline 基函数
 # =========================================================
 
 def find_span(n, p, u, U):
@@ -69,7 +69,7 @@ def extract_iso_surface(coefs_list, w_knots, degree_w, w):
 
 
 # =========================================================
-# Convert knot vectors to OCC arrays
+#  节点向量转 OCC 格式
 # =========================================================
 
 def convert_knots(knots_flat, degree):
@@ -102,12 +102,12 @@ def to_occ_int_array(arr):
     return oc
 
 # =========================================================
-# Export helper
+#  齐次变换
 # =========================================================
 def make_location_from_matrix(T: np.ndarray, scale: float = 1.0) -> cq.Location:
     """
-    Convert a 4x4 homogeneous transform matrix to a CadQuery location.
-    The translation column is scaled by the unit-cell size in millimeters.
+    将 4×4 齐次变换矩阵转为 cq.Location。
+    平移列单位是"单胞归一化边长"，scale 是实际边长（mm）。
     """
     R = T[:3, :3]
     t = T[:3,  3] * scale
@@ -120,11 +120,11 @@ def make_location_from_matrix(T: np.ndarray, scale: float = 1.0) -> cq.Location:
     return cq.Location(trsf)
 
 def apply_T(shape: cq.Shape, T: np.ndarray, scale: float = 1.0) -> cq.Shape:
-    """Apply a homogeneous transform matrix to a shape."""
+    """对 shape 施加齐次变换矩阵 T"""
     return shape.located(make_location_from_matrix(T, scale))
 
 # =========================================================
-# Abstract base class
+#  导出工具
 # =========================================================
 
 def export_shape(wp_shape, export_dir, stem, export_type):
@@ -147,74 +147,80 @@ def export_shape(wp_shape, export_dir, stem, export_type):
         filename = os.path.join(export_dir, f"{stem}.stl")
         mesh = BRepMesh_IncrementalMesh(
             wp_shape,
-            0.01,  # Linear deflection; smaller values create denser meshes.
-            False,  # Use absolute, not relative, deflection.
-            0.1,  # Angular deflection in radians.
-            True  # Enable parallel meshing.
+            0.01,  # linear deflection：越小越精细
+            False,  # isRelative：False=绝对偏差，True=相对偏差
+            0.1,  # angular deflection（弧度）：控制曲率处的细分密度
+            True  # parallel：多线程加速
         )
         mesh.Perform()
         cq.Shape(wp_shape).exportStl(filename)
 
     else:
         raise ValueError(
-            f"Unsupported export format: '{export_type}'. Use STEP, IGES, or STL."
+            f"不支持的导出格式: '{export_type}'，请使用 STEP / IGES / STL"
         )
 
-    print(f"Exported: {os.path.abspath(filename)}")
+    print(f"[导出成功] {os.path.abspath(filename)}")
 
 
 # =========================================================
-# Geometry helper
+#  抽象基类
 # =========================================================
 
 class TPMSBase(abc.ABC):
     """
-    Abstract base class for TPMS lattice generators.
+    所有 TPMS 结构的抽象基类。
 
-    Subclasses must provide the offset values, the precomputed .mat prefix,
-    and the symmetry operation that assembles one complete unit cell.
-    Dual-surface families such as Gyroid and Diamond also provide
-    mat_prefix_2 for the second surface family.
+    子类必须实现
+    ------------
+    d_values   : property → list[float]    预计算偏置参数列表
+    mat_prefix : property → str            主 .mat 文件名前缀（单曲面结构 / 双曲面结构的第一族）
+    make_cell  : method                    FP → 完整单胞
+
+    双曲面结构（Gyroid、Diamond 等）额外覆盖
+    ----------------------------------------
+    mat_prefix_2 : property → str          第二族曲面的 .mat 文件名前缀
+                                           默认返回 None，表示单曲面结构
     """
 
-    # Required subclass API.
+    # ── 子类必须实现 ──────────────────────────────────
 
     @property
     @abc.abstractmethod
     def d_values(self) -> list:
-        """Precomputed offset values, for example [-0.2, ..., 0.2]."""
+        """预计算偏置参数列表，如 [-0.2, -0.15, ..., 0.2]"""
 
     @property
     @abc.abstractmethod
     def mat_prefix(self) -> str:
-        """Primary precomputed .mat filename prefix."""
+        """主曲面 mat 文件名前缀"""
 
     @abc.abstractmethod
     def make_cell(self, w: float, location=None) -> cq.Compound:
-        """Assemble the base face patch into a complete unit cell."""
+        """将基础面片拼合为完整单胞，各结构对称操作不同，子类自行实现"""
 
-    # Optional dual-surface API.
+    # ── 双曲面结构子类可覆盖 ──────────────────────────
 
     @property
     def mat_prefix_2(self) -> str | None:
         """
-        Optional second precomputed .mat prefix.
-
-        Single-surface families return None. Dual-surface families override this.
+        第二族曲面前缀。
+        - 单曲面结构（SchwarzP、IWP 等）：返回 None（默认）
+        - 双曲面结构（Gyroid、Diamond 等）：子类覆盖，返回前缀字符串
         """
         return None
 
-    # Optional configuration hook.
+    # ── 子类可选覆盖 ──────────────────────────────────
 
     @property
     def precomp_dir(self) -> str:
-        """Directory containing precomputed surface data."""
+        """预计算文件夹，默认 'precomputation'"""
         return "precomputation"
 
-    # Internal helpers.
+    # ── 内部工具 ──────────────────────────────────────
 
     def _mat_path(self, d: float, prefix: str) -> str:
-        """Build the absolute path for a precomputed .mat file."""
+        """根据指定前缀构造 .mat 文件路径"""
         return os.path.join(
             _HERE, self.precomp_dir,
             f"{prefix}{d:.2f}.mat"
@@ -230,10 +236,10 @@ class TPMSBase(abc.ABC):
 
     def _make_FP_from_prefix(self, w: float, prefix: str) -> cq.Shape:
         """
-        Load precomputed surfaces for the selected prefix, interpolate along
-        the w direction, and return the base face patch.
+        用指定前缀读取预计算库，在 w 方向插值，返回基础面片。
+        所有实际读取逻辑集中在这里，make_FP / make_FP_2 都调用它。
         """
-        # 1. Load all precomputed surfaces.
+        # 1. 读取所有预计算曲面
         coefs_list = []
         for d in self.d_values:
             mat = scipy.io.loadmat(self._mat_path(d, prefix))
@@ -242,11 +248,11 @@ class TPMSBase(abc.ABC):
         nu = coefs_list[0].shape[1]
         nv = coefs_list[0].shape[2]
 
-        # 2. Interpolate the requested iso-surface control points.
+        # 2. 插值提取等值面控制点
         w_knots = self._build_w_knots(len(coefs_list))
         coefs   = extract_iso_surface(coefs_list, w_knots, 3, w)
 
-        # 3. Load u/v knot vectors.
+        # 3. 读取 u/v 节点向量
         ref_d = self.d_values[len(self.d_values) // 2]
         srf   = scipy.io.loadmat(self._mat_path(ref_d, prefix))['off_srf']
         kc    = srf['knots'][0, 0]
@@ -256,7 +262,7 @@ class TPMSBase(abc.ABC):
         deg_u = int(order[0]) - 1
         deg_v = int(order[1]) - 1
 
-        # 4. Build OCC control points after dehomogenization.
+        # 4. 构造 OCC 控制点（去齐次化）
         poles = TColgp_Array2OfPnt(1, nu, 1, nv)
         for i in range(nu):
             for j in range(nv):
@@ -264,11 +270,11 @@ class TPMSBase(abc.ABC):
                 x, y, z = (wx/ww, wy/ww, wz/ww) if abs(ww) > 1e-10 else (wx, wy, wz)
                 poles.SetValue(i + 1, j + 1, gp_Pnt(float(x), float(y), float(z)))
 
-        # 5. Convert knot vectors to OCC format.
+        # 5. 节点向量转 OCC 格式
         u_uniq, u_mult = convert_knots(u_kf, deg_u)
         v_uniq, v_mult = convert_knots(v_kf, deg_v)
 
-        # 6. Build and return the B-spline face.
+        # 6. 构造 B-spline 曲面并返回
         surface = Geom_BSplineSurface(
             poles,
             to_occ_real_array(u_uniq), to_occ_real_array(v_uniq),
@@ -278,24 +284,26 @@ class TPMSBase(abc.ABC):
         )
         return cq.Shape(BRepBuilderAPI_MakeFace(surface, 1e-6).Face())
 
-    # Public face-patch API.
+    # ── 公共接口 ──────────────────────────────────────
 
     def make_FP(self, w: float) -> cq.Shape:
         """
-        Read the first surface family identified by mat_prefix.
-        Single-surface families use this method directly; dual-surface
-        families use it for the positive-w side.
+        读取第一族曲面（mat_prefix）。
+        单曲面结构（P、IWP）只调用这一个；
+        双曲面结构（Gyroid、Diamond）的 +w 面也调用这个。
         """
         return self._make_FP_from_prefix(w, self.mat_prefix)
 
     def make_FP_2(self, w: float) -> cq.Shape:
         """
-        Read the second surface family identified by mat_prefix_2.
-        Only dual-surface families implement this.
+        读取第二族曲面（mat_prefix_2）。
+        仅双曲面结构（Gyroid、Diamond）使用。
+        单曲面结构调用此方法会抛出 NotImplementedError。
         """
         if self.mat_prefix_2 is None:
             raise NotImplementedError(
-                f"{self.__class__.__name__} does not define mat_prefix_2; do not call make_FP_2()."
+                f"{self.__class__.__name__} 是单曲面结构，没有 mat_prefix_2，"
+                f"请勿调用 make_FP_2()"
             )
         return self._make_FP_from_prefix(w, self.mat_prefix_2)
 
@@ -365,11 +373,11 @@ class TPMSBase(abc.ABC):
                         if loft.IsDone():
                             solids.append(cq.Shape(loft.Shape()))
                         else:
-                            print(f"Warning: loft failed for cell ({i}, {j}, {k})")
+                            print(f"[警告] loft 失败：cell ({i},{j},{k})")
 
         if not solids:
             raise RuntimeError(
-                "All face lofts failed. Check w_bottom, w_top, and the precomputed data."
+                "所有面片 loft 均失败，请检查 w_bottom / w_top 参数或预计算数据。"
             )
 
         compound = cq.Compound.makeCompound(solids)

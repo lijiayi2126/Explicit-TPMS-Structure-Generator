@@ -1,30 +1,14 @@
-# Python cache/build output
+venv/
+.venv/
 __pycache__/
 *.py[cod]
-*.pyo
-*.pyd
 *.egg-info/
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
+.idea/
+.claude/
+Lattice_lib/新建文件夹/
 build/
 dist/
-
-# Virtual environments
-.venv/
-venv/
-env/
-
-# IDE/editor files
-.idea/
-.vscode/
-
-# Runtime/exported CAD artifacts
 Export/
-exports/
-*.log
-
-# OS files
-.DS_Store
-Thumbs.db
-*.lnk
+*.cae
+*.jnl
+*.spec.bak

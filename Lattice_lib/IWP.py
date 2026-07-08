@@ -4,8 +4,8 @@ from Lattice_lib.TPMS_base import TPMSBase
 
 class IWP(TPMSBase):
     """
-    IWP minimal surface family.
-    The patch assembly follows the same mirror strategy as Schwarz P.
+    IWP (I-WP) 极小曲面。
+    空间群 Im3̄m，纯镜像对称，拼合方式与 Schwarz P 相同。
     """
 
     @property
@@ -22,14 +22,13 @@ class IWP(TPMSBase):
 
     def make_cell(self, w: float, location=None) -> cq.Compound:
         """
-        Assemble one IWP unit cell.
-
-        Step 1: mirror 6 face patches into one senior patch.
-        Step 2: mirror 8 senior patches into one full unit cell.
+        IWP 单胞拼合：
+          Step 1 — 6 次镜像拼成 Senior Patch（1/8 单胞）
+          Step 2 — 8 个 Senior Patch 拼成完整单胞
         """
         fp = self.make_FP(w)
 
-        # Step 1: 6 face patches -> one senior patch.
+        # ── Step 1：6 个面片 → Senior Patch ──────────
         FP_0 = fp
         FP_1 = fp.mirror((0,  1, -1), (0, 0, 0))
         FP_2 = FP_1.mirror((1,  0, -1), (0, 0, 0))
@@ -39,7 +38,7 @@ class IWP(TPMSBase):
 
         SP_0 = cq.Compound.makeCompound([FP_0, FP_1, FP_2, FP_3, FP_4, FP_5])
 
-        # Step 2: 8 senior patches -> one full unit cell.
+        # ── Step 2：8 个 Senior Patch → 完整单胞 ──────
         SP_1 = SP_0.mirror((0, 0, 1), (0, 0, 0))
         SP_2 = SP_1.mirror((0, 1, 0), (0, 0, 0))
         SP_3 = SP_2.mirror((0, 0, 1), (0, 0, 0))
@@ -58,7 +57,7 @@ class IWP(TPMSBase):
 
 
 # =========================================================
-# Backward-compatible function entry points.
+#  向后兼容入口
 # =========================================================
 
 def IWP_Shell(

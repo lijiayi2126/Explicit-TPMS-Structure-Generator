@@ -1,5 +1,5 @@
-cadquery>=2.4
-PyQt5>=5.15
-numpy>=1.23
-scipy>=1.9
-geomdl>=5.3
+cadquery==2.8.0
+PyQt5==5.15.11
+numpy==2.4.6
+scipy==1.18.0
+geomdl==5.4.0

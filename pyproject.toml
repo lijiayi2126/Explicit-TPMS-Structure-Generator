@@ -5,23 +5,20 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "explicit-tpms"
 version = "0.1.0"
-description = "PyQt/CadQuery desktop tool for generating explicit TPMS lattice structures."
+description = "A PyQt5 and CadQuery application for creating explicit TPMS lattice structures."
 readme = "README.md"
-requires-python = ">=3.10,<3.13"
+requires-python = ">=3.12,<3.13"
 dependencies = [
-    "cadquery>=2.4",
-    "PyQt5>=5.15",
-    "numpy>=1.23",
-    "scipy>=1.9",
-    "geomdl>=5.3",
+    "cadquery==2.8.0",
+    "PyQt5==5.15.11",
+    "numpy==2.4.6",
+    "scipy==1.18.0",
+    "geomdl==5.4.0",
 ]
 
-[project.scripts]
-explicit-tpms = "main_ui:main"
-
 [tool.setuptools]
-py-modules = ["main_ui"]
-packages = ["Lattice_lib", "Nurbs_Base", "ui"]
+py-modules = ["UI", "occt_window"]
+packages = ["Lattice_lib", "Nurbs_Base"]
 
 [tool.setuptools.package-data]
 Lattice_lib = ["precomputation/*.mat"]

@@ -6,13 +6,13 @@ from Nurbs_Base.bspline_func import make_location_from_matrix
 
 class Diamond(TPMSBase):
 
-    # Normalized unit-cell edge length.
+    # ── eta = 1（单胞归一化边长）────────────────────
     _eta = 1.0
 
-    # Three base rotation matrices.
+    # ── O：3 个基础旋转矩阵 ──────────────────────────
     @staticmethod
     def _build_O():
-        O = [None] * 4          # One-based indexing; O[0] is unused.
+        O = [None] * 4          # 下标从 1 开始，O[0] 不用
         O[1] = np.array([[ 1,  0,  0,  0],
                          [ 0,  1,  0,  0],
                          [ 0,  0,  1,  0],
@@ -27,10 +27,10 @@ class Diamond(TPMSBase):
                          [ 0,  0,  0,  1]], dtype=float)
         return O
 
-    # Four transform matrices in group A.
+    # ── A：4 个变换矩阵 ──────────────────────────────
     @staticmethod
     def _build_A():
-        A = [None] * 5          # One-based indexing; index 0 is unused.
+        A = [None] * 5          # 下标从 1 开始
         A[1] = np.eye(4, dtype=float)
         A[2] = np.array([[-1,  0,  0, -1],
                          [ 0, -1,  0,  1],
@@ -46,10 +46,10 @@ class Diamond(TPMSBase):
                          [ 0,  0,  0,  1]], dtype=float)
         return A
 
-    # Four transform matrices in group B.
+    # ── B：4 个变换矩阵 ──────────────────────────────
     @staticmethod
     def _build_B():
-        B = [None] * 5          # One-based indexing; index 0 is unused.
+        B = [None] * 5          # 下标从 1 开始
         B[1] = np.array([[-1,  0,  0,  0],
                          [ 0,  0, -1,  1],
                          [ 0, -1,  0,  1],
@@ -68,10 +68,10 @@ class Diamond(TPMSBase):
                          [ 0,  0,  0,  1]], dtype=float)
         return B
 
-    # Six translation matrices.
+    # ── C：6 个平移矩阵 ──────────────────────────────
     @staticmethod
     def _build_C():
-        C = [None] * 7          # One-based indexing; index 0 is unused.
+        C = [None] * 7          # 下标从 1 开始
         C[1] = np.array([[ 1,  0,  0,  2],
                          [ 0,  1,  0,  0],
                          [ 0,  0,  1, -2],
@@ -98,7 +98,7 @@ class Diamond(TPMSBase):
                          [ 0,  0,  0,  1]], dtype=float)
         return C
 
-    # Build all 96 transform matrices following the MATLAB reference order.
+    # ── 按 MATLAB 循环生成全部 96 个变换矩阵 ─────────
     @classmethod
     def _build_all_T(cls):
         O = cls._build_O()
@@ -107,50 +107,50 @@ class Diamond(TPMSBase):
         C = cls._build_C()
         T = []
 
-        # kk = 1~12A{1..4} * O{1..3}
+        # kk = 1~12：A{1..4} * O{1..3}
         for j in range(1, 5):
             for i in range(1, 4):
                 T.append(A[j] @ O[i])
 
-        # kk = 13~24B{1..4} * O{1..3}
+        # kk = 13~24：B{1..4} * O{1..3}
         for j in range(1, 5):
             for i in range(1, 4):
                 T.append(B[j] @ O[i])
 
-        # kk = 25~36C{1} * B{1..4} * O{1..3}
+        # kk = 25~36：C{1} * B{1..4} * O{1..3}
         for j in range(1, 5):
             for i in range(1, 4):
                 T.append(C[1] @ B[j] @ O[i])
 
-        # kk = 37~48C{2} * A{1..4} * O{1..3}
+        # kk = 37~48：C{2} * A{1..4} * O{1..3}
         for j in range(1, 5):
             for i in range(1, 4):
                 T.append(C[2] @ A[j] @ O[i])
 
-        # kk = 49~60C{3} * B{1..4} * O{1..3}
+        # kk = 49~60：C{3} * B{1..4} * O{1..3}
         for j in range(1, 5):
             for i in range(1, 4):
                 T.append(C[3] @ B[j] @ O[i])
 
-        # kk = 61~72C{4} * A{1..4} * O{1..3}
+        # kk = 61~72：C{4} * A{1..4} * O{1..3}
         for j in range(1, 5):
             for i in range(1, 4):
                 T.append(C[4] @ A[j] @ O[i])
 
-        # kk = 73~84C{5} * A{1..4} * O{1..3}
+        # kk = 73~84：C{5} * A{1..4} * O{1..3}
         for j in range(1, 5):
             for i in range(1, 4):
                 T.append(C[5] @ A[j] @ O[i])
 
-        # kk = 85~96C{6} * B{1..4} * O{1..3}
+        # kk = 85~96：C{6} * B{1..4} * O{1..3}
         for j in range(1, 5):
             for i in range(1, 4):
                 T.append(C[6] @ B[j] @ O[i])
 
-        assert len(T) == 96, f"Expected 96 transform matrices, got {len(T)}."
+        assert len(T) == 96, f"期望96个变换矩阵，实际得到{len(T)}个"
         return T
 
-    # TPMSBase implementation
+    # ── TPMSBase 必须实现的接口 ───────────────────────
 
     @property
     def d_values(self):
@@ -166,14 +166,14 @@ class Diamond(TPMSBase):
 
     @property
     def cell_period(self):
-        return 4.0 * self._eta   # Diamond period = 4 * eta.
+        return 4.0 * self._eta   # Diamond 周期 = 4*eta
 
     @property
     def cell_period(self):
         return 4.0
 
 
-    # Assemble one complete unit cell.
+    # ── 核心：make_cell ───────────────────────────────
 
     def make_cell(self, w: float, location=None) -> cq.Compound:
         fp_1 = self.make_FP(w)
@@ -194,7 +194,7 @@ class Diamond(TPMSBase):
         return result
 
 
-# Backward-compatible function entry points.
+# ── 向后兼容入口 ──────────────────────────────────────
 
 def diamond_Shell(unit_cell_size, w, Nx, Ny, Nz, export_type=None):
     return Diamond().make_shell(unit_cell_size, w, Nx, Ny, Nz, export_type)
