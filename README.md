@@ -51,15 +51,11 @@ Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
 
 ### 1.3 Install from EXE
 
-Users who do not need the source code can install the prebuilt Windows application directly:
+Users who do not need the source code can download the prebuilt Windows executable directly:
 
-```text
-Explicit-TPMS-Structure-Generator-Setup.exe
-```
+[Download Explicit-TPMS-Structure-Generator.exe](https://github.com/lijiayi2126/Explicit-TPMS-Structure-Generator/releases/download/v0.1.0/Explicit-TPMS-Structure-Generator.exe)
 
-Double-click the installer and follow the setup wizard. The installer includes Python, CadQuery, OpenCASCADE, PyQt5, and all other runtime dependencies, so no separate Python environment is required.
-
-The installer creates a Start menu shortcut and can optionally create a desktop shortcut. To remove the application, run the uninstaller from the installation directory.
+Double-click the executable to start the application.
 
 ### 1.4 Start a source installation later
 
@@ -112,8 +108,9 @@ Based on the dimensions of the imported geometric model, the software automatica
 
 Several example models are provided in the `BooleanExamples` folder. The corresponding geometric models and porous structures are shown below:
 
-| ![Bunny model](BooleanExamples/pic/bunny_model.png) | ![Bunny porous structure](BooleanExamples/pic/bunny_porous.png) |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| ![Dente model](BooleanExamples/pic/dente_model.png) | ![Dente porous structure](BooleanExamples/pic/dente_porous.png) |
-| ![Duck model](BooleanExamples/pic/duck_model.png) | ![Duck porous structure](BooleanExamples/pic/duck_porous.png) |
-| ![Moai model](BooleanExamples/pic/moai_model.png) | ![Moai porous structure](BooleanExamples/pic/moai_porous.png) |
+| Model | Lattice-filled structure |
+| --- | --- |
+| <img src="BooleanExamples/pic/bunny_model.png" alt="Bunny model" width="360"> | <img src="BooleanExamples/pic/bunny_porous.png" alt="Bunny porous structure" width="360"> |
+| <img src="BooleanExamples/pic/dente_model.png" alt="Dente model" width="360"> | <img src="BooleanExamples/pic/dente_porous.png" alt="Dente porous structure" width="360"> |
+| <img src="BooleanExamples/pic/duck_model.png" alt="Duck model" width="360"> | <img src="BooleanExamples/pic/duck_porous.png" alt="Duck porous structure" width="360"> |
+| <img src="BooleanExamples/pic/moai_model.png" alt="Moai model" width="360"> | <img src="BooleanExamples/pic/moai_porous.png" alt="Moai porous structure" width="360"> |
